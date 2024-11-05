@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Recupera os dados do estoque e histórico de vendas do localStorage
     let estoque = JSON.parse(localStorage.getItem('estoque')) || [];
     let historicoVendas = JSON.parse(localStorage.getItem('historicoVendas')) || [];
     let lucroTotal = 0;
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('form-veiculo').addEventListener('submit', function(event) {
         event.preventDefault();
 
+        // Captura os dados do formulário
         const tipo = document.getElementById('tipo').value.trim();
         const marca = document.getElementById('marca').value.trim();
         const modelo = document.getElementById('modelo').value.trim();
@@ -23,11 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantidade = parseInt(document.getElementById('quantidade').value);
         const preco = parseFloat(document.getElementById('preco').value);
 
+        // Validação
         if (tipo === '' || marca === '' || modelo === '' || ano < 1900 || ano > new Date().getFullYear() || quantidade <= 0 || preco <= 0) {
             alert("Por favor, preencha todos os campos corretamente.");
             return;
         }
 
+        // Criação do novo veículo
         const veiculo = {
             tipo,
             marca,
@@ -39,10 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
             precoVenda: 0
         };
 
+        // Adiciona o veículo ao estoque
         estoque.push(veiculo);
-        localStorage.setItem('estoque', JSON.stringify(estoque));
+        localStorage.setItem('estoque', JSON.stringify(estoque)); // Salva no localStorage
 
+        // Limpa o formulário
         document.getElementById('form-veiculo').reset();
+
+        // Atualiza a tabela e o total do estoque
         atualizarTabela();
         atualizarTotalEstoque();
         atualizarLucro();
@@ -51,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para atualizar a tabela
     function atualizarTabela() {
         const tabela = document.getElementById('estoque-tabela').getElementsByTagName('tbody')[0];
-        tabela.innerHTML = '';
+        tabela.innerHTML = '';  // Limpa a tabela antes de atualizar
 
         estoque.forEach((veiculo, index) => {
             const row = tabela.insertRow();
@@ -66,26 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><input type="number" value="${veiculo.vendidos}" onchange="atualizarVendidos(${index}, this.value)" /></td>
                 <td><input type="number" value="${veiculo.precoVenda}" onchange="atualizarPrecoVenda(${index}, this.value)" /></td>
                 <td>${formatarMoeda(veiculo.vendidos * (veiculo.precoVenda - veiculo.preco))}</td>
-                <td>
-                    <button class="btn btn-danger" onclick="removerVeiculo(${index})">Remover</button>
-                    <button class="btn btn-success" onclick="registrarVenda(${index})">Registrar Venda</button>
-                </td>
+                <td><button class="btn btn-danger btn-sm" onclick="removerVeiculo(${index})">Remover</button></td>
+                <td><button class="btn btn-success btn-sm" onclick="registrarVenda(${index})">Registrar Venda</button></td>
             `;
         });
     }
 
-    // Função para remover um veículo
+    // Função para remover veículo do estoque
     function removerVeiculo(index) {
         estoque.splice(index, 1);
-        localStorage.setItem('estoque', JSON.stringify(estoque));
+        localStorage.setItem('estoque', JSON.stringify(estoque));  // Atualiza o localStorage
         atualizarTabela();
         atualizarTotalEstoque();
         atualizarLucro();
     }
 
-    // Função para registrar uma venda
+    // Função para registrar venda
     function registrarVenda(index) {
         const quantidadeVendida = parseInt(prompt("Quantos veículos foram vendidos?"));
+
         if (isNaN(quantidadeVendida) || quantidadeVendida <= 0) {
             alert("Por favor, insira uma quantidade válida!");
             return;
@@ -171,6 +178,3 @@ document.addEventListener('DOMContentLoaded', () => {
     atualizarLucro();
     exibirHistoricoVendas();
 });
-
-
-
