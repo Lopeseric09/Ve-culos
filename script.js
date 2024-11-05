@@ -10,48 +10,92 @@ function formatarMoeda(valor) {
     });
 }
 
-// Função para adicionar um veículo ao estoque
-document.getElementById('form-veiculo').addEventListener('submit', function(event) {
-    event.preventDefault();
+// Função para registrar a venda e adicionar no histórico de vendas
+function registrarVenda(veiculoIndex, quantidadeVendida) {
+    const veiculo = estoque[veiculoIndex];
+    const precoVenda = veiculo.precoVenda;
 
-    const tipo = document.getElementById('tipo').value.trim();
-    const marca = document.getElementById('marca').value.trim();
-    const modelo = document.getElementById('modelo').value.trim();
-    const ano = parseInt(document.getElementById('ano').value);
-    const quantidade = parseInt(document.getElementById('quantidade').value);
-    const preco = parseFloat(document.getElementById('preco').value);
-
-    // Validações
-    if (tipo === '' || marca === '' || modelo === '' || ano < 1900 || ano > new Date().getFullYear() || quantidade <= 0 || preco <= 0) {
-        alert("Por favor, preencha todos os campos corretamente.");
+    // Verifica se a quantidade vendida é maior que a quantidade em estoque
+    if (quantidadeVendida > veiculo.quantidade) {
+        alert('Quantidade vendida não pode ser maior que o estoque disponível!');
         return;
     }
 
-    // Criar um novo veículo e adicionar ao estoque
-    const veiculo = {
-        tipo,
-        marca,
-        modelo,
-        ano,
-        quantidade,
-        preco,
-        vendidos: 0,
-        precoVenda: 0
+    // Atualiza o estoque do veículo após a venda
+    veiculo.quantidade -= quantidadeVendida;
+    veiculo.vendidos += quantidadeVendida;
+
+    // Calcula o lucro da venda
+    const lucroVenda = (precoVenda - veiculo.preco) * quantidadeVendida;
+
+    // Registra a venda no histórico com a data
+    const dataVenda = new Date().toLocaleDateString('pt-BR');
+    const vendaRegistro = {
+        tipo: veiculo.tipo,
+        marca: veiculo.marca,
+        modelo: veiculo.modelo,
+        quantidadeVendida,
+        precoVenda: formatarMoeda(precoVenda),
+        lucro: formatarMoeda(lucroVenda),
+        dataVenda
     };
 
-    estoque.push(veiculo);
+    // Adiciona o registro ao histórico de vendas
+    historicoVendas.push(vendaRegistro);
+
+    // Atualiza o histórico no localStorage
+    localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas));
+
+    // Atualiza o estoque no localStorage
+    localStorage.setItem('estoque', JSON.stringify(estoque));
+
+    // Atualiza a tabela e os totais
     atualizarTabela();
     atualizarTotalEstoque();
     atualizarLucro();
+    exibirHistoricoVendas();
+}
 
-    // Salvar no localStorage
-    localStorage.setItem('estoque', JSON.stringify(estoque));
+// Função para exibir o histórico de vendas mensal
+function exibirHistoricoVendas() {
+    const historicoDiv = document.getElementById('historico-vendas');
+    historicoDiv.innerHTML = '';
 
-    // Limpar o formulário
-    document.getElementById('form-veiculo').reset();
-});
+    // Organiza as vendas por mês
+    let vendasPorMes = {};
 
-// Função para exibir o estoque na tabela
+    historicoVendas.forEach(venda => {
+        const mesAno = venda.dataVenda.split('/').slice(1).join('/'); // Mês/Ano (ex: 04/2024)
+        if (!vendasPorMes[mesAno]) {
+            vendasPorMes[mesAno] = [];
+        }
+        vendasPorMes[mesAno].push(venda);
+    });
+
+    // Exibe as vendas agrupadas por mês
+    for (let mesAno in vendasPorMes) {
+        const mesDiv = document.createElement('div');
+        mesDiv.classList.add('mb-4');
+        mesDiv.innerHTML = `<strong>${mesAno}:</strong>`;
+        historicoDiv.appendChild(mesDiv);
+
+        vendasPorMes[mesAno].forEach(venda => {
+            const vendaDiv = document.createElement('div');
+            vendaDiv.classList.add('mb-2');
+            vendaDiv.innerHTML = `
+                <p><strong>Veículo:</strong> ${venda.marca} ${venda.modelo} - ${venda.tipo}</p>
+                <p><strong>Quantidade Vendida:</strong> ${venda.quantidadeVendida}</p>
+                <p><strong>Preço de Venda:</strong> ${venda.precoVenda}</p>
+                <p><strong>Lucro:</strong> ${venda.lucro}</p>
+                <p><strong>Data da Venda:</strong> ${venda.dataVenda}</p>
+                <hr>
+            `;
+            mesDiv.appendChild(vendaDiv);
+        });
+    }
+}
+
+// Função para exibir a tabela do estoque e atualizar os valores totais
 function atualizarTabela(veiculos = estoque) {
     const tabela = document.getElementById('estoque-tabela').getElementsByTagName('tbody')[0];
     tabela.innerHTML = '';
@@ -70,24 +114,12 @@ function atualizarTabela(veiculos = estoque) {
             <td><input type="number" value="${veiculo.precoVenda}" onchange="atualizarPrecoVenda(${index}, this.value)" /></td>
             <td>${formatarMoeda(veiculo.vendidos * (veiculo.precoVenda - veiculo.preco))}</td>
             <td><button class="btn btn-danger btn-sm" onclick="removerVeiculo(${index})">Remover</button></td>
+            <td><button class="btn btn-success btn-sm" onclick="registrarVenda(${index}, prompt('Quantos veículos foram vendidos?'))">Registrar Venda</button></td>
         `;
     });
 }
 
-// Função para remover um veículo do estoque
-function removerVeiculo(index) {
-    if (confirm("Tem certeza que deseja remover este veículo do estoque?")) {
-        estoque.splice(index, 1); // Remove o veículo da lista
-        atualizarTabela();
-        atualizarTotalEstoque();
-        atualizarLucro();
-        
-        // Salvar as alterações no localStorage
-        localStorage.setItem('estoque', JSON.stringify(estoque));
-    }
-}
-
-// Atualizar o número de vendidos
+// Função para atualizar o número de vendidos
 function atualizarVendidos(index, vendidos) {
     const veiculo = estoque[index];
     veiculo.vendidos = parseInt(vendidos);
@@ -95,7 +127,7 @@ function atualizarVendidos(index, vendidos) {
     localStorage.setItem('estoque', JSON.stringify(estoque));
 }
 
-// Atualizar o preço de venda
+// Função para atualizar o preço de venda
 function atualizarPrecoVenda(index, precoVenda) {
     const veiculo = estoque[index];
     veiculo.precoVenda = parseFloat(precoVenda);
@@ -160,4 +192,3 @@ function exibirHistoricoVendas() {
 
 // Exibir o histórico de vendas ao carregar a página
 exibirHistoricoVendas();
-
