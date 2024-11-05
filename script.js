@@ -1,6 +1,14 @@
 let estoque = JSON.parse(localStorage.getItem('estoque')) || [];
 let historicoVendas = JSON.parse(localStorage.getItem('historicoVendas')) || [];
-let lucroTotal = 0; // Variável para o lucro do mês
+let lucroTotal = 0;
+
+// Função para formatar números como moeda R$
+function formatarMoeda(valor) {
+    return valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+}
 
 // Função para adicionar um veículo ao estoque
 document.getElementById('form-veiculo').addEventListener('submit', function(event) {
@@ -48,7 +56,7 @@ function atualizarTabela(veiculos = estoque) {
     const tabela = document.getElementById('estoque-tabela').getElementsByTagName('tbody')[0];
     tabela.innerHTML = '';
 
-    veiculos.forEach(veiculo => {
+    veiculos.forEach((veiculo, index) => {
         const row = tabela.insertRow();
         row.innerHTML = `
             <td>${veiculo.tipo}</td>
@@ -56,13 +64,27 @@ function atualizarTabela(veiculos = estoque) {
             <td>${veiculo.modelo}</td>
             <td>${veiculo.ano}</td>
             <td>${veiculo.quantidade}</td>
-            <td>R$ ${veiculo.preco.toFixed(2)}</td>
-            <td>R$ ${(veiculo.quantidade * veiculo.preco).toFixed(2)}</td>
-            <td><input type="number" value="${veiculo.vendidos}" onchange="atualizarVendidos(${estoque.indexOf(veiculo)}, this.value)" /></td>
-            <td><input type="number" value="${veiculo.precoVenda}" onchange="atualizarPrecoVenda(${estoque.indexOf(veiculo)}, this.value)" /></td>
-            <td>R$ ${(veiculo.vendidos * (veiculo.precoVenda - veiculo.preco)).toFixed(2)}</td>
+            <td>${formatarMoeda(veiculo.preco)}</td>
+            <td>${formatarMoeda(veiculo.quantidade * veiculo.preco)}</td>
+            <td><input type="number" value="${veiculo.vendidos}" onchange="atualizarVendidos(${index}, this.value)" /></td>
+            <td><input type="number" value="${veiculo.precoVenda}" onchange="atualizarPrecoVenda(${index}, this.value)" /></td>
+            <td>${formatarMoeda(veiculo.vendidos * (veiculo.precoVenda - veiculo.preco))}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="removerVeiculo(${index})">Remover</button></td>
         `;
     });
+}
+
+// Função para remover um veículo do estoque
+function removerVeiculo(index) {
+    if (confirm("Tem certeza que deseja remover este veículo do estoque?")) {
+        estoque.splice(index, 1); // Remove o veículo da lista
+        atualizarTabela();
+        atualizarTotalEstoque();
+        atualizarLucro();
+        
+        // Salvar as alterações no localStorage
+        localStorage.setItem('estoque', JSON.stringify(estoque));
+    }
 }
 
 // Atualizar o número de vendidos
@@ -89,13 +111,13 @@ function atualizarLucro() {
     });
 
     // Atualiza o lucro do mês
-    document.getElementById('lucro-total').textContent = lucroTotal.toFixed(2);
+    document.getElementById('lucro-total').textContent = formatarMoeda(lucroTotal);
 }
 
 // Função para calcular o total do estoque
 function atualizarTotalEstoque() {
     const total = estoque.reduce((acc, veiculo) => acc + (veiculo.quantidade * veiculo.preco), 0);
-    document.getElementById('total-valor').textContent = total.toFixed(2);
+    document.getElementById('total-valor').textContent = formatarMoeda(total);
 }
 
 // Função para filtrar o estoque por tipo
@@ -131,7 +153,7 @@ function exibirHistoricoVendas() {
     historicoVendas.forEach(venda => {
         const div = document.createElement('div');
         div.classList.add('mb-2');
-        div.innerHTML = `<strong>${venda.mesAno}:</strong> R$ ${venda.lucro.toFixed(2)}`;
+        div.innerHTML = `<strong>${venda.mesAno}:</strong> ${formatarMoeda(venda.lucro)}`;
         historicoDiv.appendChild(div);
     });
 }
