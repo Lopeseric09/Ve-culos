@@ -16,8 +16,36 @@
             <div class="col-md-6">
                 <h3>Adicionar Veículo</h3>
                 <form id="form-veiculo" class="mb-4">
-                    <!-- Formulário de cadastro de veículo -->
-                    <!-- Campos para tipo, marca, modelo, preço, quantidade, etc. -->
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo</label>
+                        <select id="tipo" class="form-select" required>
+                            <option value="Carro">Carro</option>
+                            <option value="Caminhonete">Caminhonete</option>
+                            <option value="Moto">Moto</option>
+                            <option value="Caminhão">Caminhão</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" id="marca" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <input type="text" id="modelo" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ano" class="form-label">Ano</label>
+                        <input type="number" id="ano" class="form-control" min="1900" max="2024" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantidade" class="form-label">Quantidade</label>
+                        <input type="number" id="quantidade" class="form-control" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="preco" class="form-label">Preço</label>
+                        <input type="number" id="preco" class="form-control" min="0.01" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Adicionar Veículo</button>
                 </form>
             </div>
 
@@ -48,7 +76,7 @@
                     <th>Vendidos</th>
                     <th>Preço de Venda</th>
                     <th>Lucro</th>
-                    <th>Ações</th> <!-- Coluna para o botão de remover -->
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
