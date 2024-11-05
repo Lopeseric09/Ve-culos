@@ -65,7 +65,15 @@ function atualizarTotalEstoque() {
 // Função para filtrar os veículos por tipo
 function filtrarPorTipo() {
     const filtro = document.getElementById('filtro-tipo').value.trim().toLowerCase();
-    const veiculosFiltrados = estoque.filter(veiculo => veiculo.tipo.toLowerCase().includes(filtro));
+    
+    // Se não for selecionado nenhum tipo, mostrar todos os veículos
+    if (!filtro) {
+        atualizarTabela(estoque);
+        atualizarTotalEstoque();
+        return;
+    }
+
+    const veiculosFiltrados = estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro);
     atualizarTabela(veiculosFiltrados);
     calcularTotalFiltrado(veiculosFiltrados);
 }
@@ -79,3 +87,4 @@ function calcularTotalFiltrado(veiculos) {
 // Inicializar a tabela com os dados do localStorage
 atualizarTabela();
 atualizarTotalEstoque();
+
