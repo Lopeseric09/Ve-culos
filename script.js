@@ -187,3 +187,49 @@ function filtrarPorTipo() {
     const veiculosFiltrados = filtro ? estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro) : estoque;
     atualizarTabela(veiculosFiltrados);
 }
+// Função para remover uma venda específica do histórico
+function removerVenda(index) {
+    const confirmacao = confirm("Você tem certeza que deseja remover esta venda?");
+    
+    if (confirmacao) {
+        historicoVendas.splice(index, 1);
+        localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas)); // Atualiza o localStorage
+        exibirHistoricoVendas(); // Atualiza o histórico na interface
+    }
+}
+
+// Função para limpar todo o histórico de vendas
+function limparHistoricoVendas() {
+    const confirmacao = confirm("Tem certeza de que deseja remover todo o histórico de vendas?");
+    
+    if (confirmacao) {
+        historicoVendas = [];
+        localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas)); // Limpa o localStorage
+        exibirHistoricoVendas(); // Atualiza o histórico na interface
+    }
+}
+
+// Exibir histórico de vendas com a opção de remover
+function exibirHistoricoVendas() {
+    const historicoDiv = document.getElementById('historico-vendas');
+    historicoDiv.innerHTML = '';
+
+    if (historicoVendas.length === 0) {
+        historicoDiv.innerHTML = '<p>Não há vendas registradas.</p>';
+    } else {
+        historicoVendas.forEach((venda, index) => {
+            const div = document.createElement('div');
+            div.classList.add('mb-2');
+            div.innerHTML = `
+                <strong>${venda.mesAno}:</strong> ${venda.veiculo} - Quantidade: ${venda.quantidadeVendida}, Lucro: ${formatarMoeda(venda.lucro)}, Data: ${venda.data}
+                <button class="btn-danger" onclick="removerVenda(${index})">Remover</button>
+            `;
+            historicoDiv.appendChild(div);
+        });
+    }
+}
+
+// Adicionar botão para limpar todo o histórico
+document.getElementById('historico-vendas').innerHTML += `
+    <button class="btn-danger" onclick="limparHistoricoVendas()">Limpar Histórico</button>
+`;
