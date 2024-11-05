@@ -74,8 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><input type="number" value="${veiculo.vendidos}" onchange="atualizarVendidos(${index}, this.value)" /></td>
                 <td><input type="number" value="${veiculo.precoVenda}" onchange="atualizarPrecoVenda(${index}, this.value)" /></td>
                 <td>${formatarMoeda(veiculo.vendidos * (veiculo.precoVenda - veiculo.preco))}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="removerVeiculo(${index})">Remover</button></td>
-                <td><button class="btn btn-success btn-sm" onclick="registrarVenda(${index})">Registrar Venda</button></td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="removerVeiculo(${index})">Remover</button>
+                    <button class="btn btn-success btn-sm" onclick="registrarVenda(${index})">Registrar Venda</button>
+                </td>
             `;
         });
     }
@@ -83,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para remover veículo do estoque
     function removerVeiculo(index) {
         estoque.splice(index, 1);
-        localStorage.setItem('estoque', JSON.stringify(estoque));  // Atualiza o localStorage
+        localStorage.setItem('estoque', JSON.stringify(estoque)); // Atualiza o localStorage
         atualizarTabela();
         atualizarTotalEstoque();
         atualizarLucro();
@@ -105,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Atualiza os dados do veículo
         veiculo.quantidade -= quantidadeVendida;
         veiculo.vendidos += quantidadeVendida;
 
@@ -116,9 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
             data: new Date().toLocaleDateString()
         });
 
+        // Salva no localStorage
         localStorage.setItem('estoque', JSON.stringify(estoque));
         localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas));
 
+        // Atualiza a tabela e os totais
         atualizarTabela();
         atualizarTotalEstoque();
         atualizarLucro();
@@ -156,25 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function filtrarPorTipo() {
         const filtro = document.getElementById('filtro-tipo').value.trim().toLowerCase();
         const veiculosFiltrados = filtro ? estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro) : estoque;
-        atualizarTabela(veiculosFiltrados);
+        atualizarTabela();
     }
 
-    // Exibir histórico de vendas
-    function exibirHistoricoVendas() {
-        const historicoDiv = document.getElementById('historico-vendas');
-        historicoDiv.innerHTML = '';
-
-        historicoVendas.forEach(venda => {
-            const div = document.createElement('div');
-            div.classList.add('mb-2');
-            div.innerHTML = `<strong>${venda.data}:</strong> ${venda.veiculo} - Quantidade: ${venda.quantidadeVendida}, Lucro: ${formatarMoeda(venda.lucro)}`;
-            historicoDiv.appendChild(div);
-        });
-    }
-
-    // Chamada inicial para atualizar a tabela e o histórico
+    // Inicializa a tabela e os totais
     atualizarTabela();
     atualizarTotalEstoque();
     atualizarLucro();
-    exibirHistoricoVendas();
 });
