@@ -80,12 +80,14 @@ function atualizarTabela(veiculos = estoque) {
 
 // Função para remover veículo do estoque
 function removerVeiculo(index) {
-    // Remove o veículo do estoque
-    estoque.splice(index, 1);
-    localStorage.setItem('estoque', JSON.stringify(estoque));  // Atualiza o localStorage
-    atualizarTabela();  // Atualiza a tabela após a remoção
-    atualizarTotalEstoque();  // Atualiza o total do estoque
-    atualizarLucro();  // Atualiza o lucro
+    if (confirm("Tem certeza que deseja remover este veículo?")) {
+        // Remove o veículo do estoque
+        estoque.splice(index, 1);
+        localStorage.setItem('estoque', JSON.stringify(estoque));  // Atualiza o localStorage
+        atualizarTabela();  // Atualiza a tabela após a remoção
+        atualizarTotalEstoque();  // Atualiza o total do estoque
+        atualizarLucro();  // Atualiza o lucro
+    }
 }
 
 // Função para registrar venda
@@ -186,5 +188,3 @@ function exibirHistoricoVendas() {
 
 // Exibe o histórico de vendas ao carregar a página
 exibirHistoricoVendas();
-
-`;
