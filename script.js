@@ -10,92 +10,48 @@ function formatarMoeda(valor) {
     });
 }
 
-// Função para registrar a venda e adicionar no histórico de vendas
-function registrarVenda(veiculoIndex, quantidadeVendida) {
-    const veiculo = estoque[veiculoIndex];
-    const precoVenda = veiculo.precoVenda;
+// Função para adicionar um veículo ao estoque
+document.getElementById('form-veiculo').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-    // Verifica se a quantidade vendida é maior que a quantidade em estoque
-    if (quantidadeVendida > veiculo.quantidade) {
-        alert('Quantidade vendida não pode ser maior que o estoque disponível!');
+    const tipo = document.getElementById('tipo').value.trim();
+    const marca = document.getElementById('marca').value.trim();
+    const modelo = document.getElementById('modelo').value.trim();
+    const ano = parseInt(document.getElementById('ano').value);
+    const quantidade = parseInt(document.getElementById('quantidade').value);
+    const preco = parseFloat(document.getElementById('preco').value);
+
+    // Validações
+    if (tipo === '' || marca === '' || modelo === '' || ano < 1900 || ano > new Date().getFullYear() || quantidade <= 0 || preco <= 0) {
+        alert("Por favor, preencha todos os campos corretamente.");
         return;
     }
 
-    // Atualiza o estoque do veículo após a venda
-    veiculo.quantidade -= quantidadeVendida;
-    veiculo.vendidos += quantidadeVendida;
-
-    // Calcula o lucro da venda
-    const lucroVenda = (precoVenda - veiculo.preco) * quantidadeVendida;
-
-    // Registra a venda no histórico com a data
-    const dataVenda = new Date().toLocaleDateString('pt-BR');
-    const vendaRegistro = {
-        tipo: veiculo.tipo,
-        marca: veiculo.marca,
-        modelo: veiculo.modelo,
-        quantidadeVendida,
-        precoVenda: formatarMoeda(precoVenda),
-        lucro: formatarMoeda(lucroVenda),
-        dataVenda
+    // Criar um novo veículo e adicionar ao estoque
+    const veiculo = {
+        tipo,
+        marca,
+        modelo,
+        ano,
+        quantidade,
+        preco,
+        vendidos: 0,
+        precoVenda: 0
     };
 
-    // Adiciona o registro ao histórico de vendas
-    historicoVendas.push(vendaRegistro);
-
-    // Atualiza o histórico no localStorage
-    localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas));
-
-    // Atualiza o estoque no localStorage
-    localStorage.setItem('estoque', JSON.stringify(estoque));
-
-    // Atualiza a tabela e os totais
+    estoque.push(veiculo);
     atualizarTabela();
     atualizarTotalEstoque();
     atualizarLucro();
-    exibirHistoricoVendas();
-}
 
-// Função para exibir o histórico de vendas mensal
-function exibirHistoricoVendas() {
-    const historicoDiv = document.getElementById('historico-vendas');
-    historicoDiv.innerHTML = '';
+    // Salvar no localStorage
+    localStorage.setItem('estoque', JSON.stringify(estoque));
 
-    // Organiza as vendas por mês
-    let vendasPorMes = {};
+    // Limpar o formulário
+    document.getElementById('form-veiculo').reset();
+});
 
-    historicoVendas.forEach(venda => {
-        const mesAno = venda.dataVenda.split('/').slice(1).join('/'); // Mês/Ano (ex: 04/2024)
-        if (!vendasPorMes[mesAno]) {
-            vendasPorMes[mesAno] = [];
-        }
-        vendasPorMes[mesAno].push(venda);
-    });
-
-    // Exibe as vendas agrupadas por mês
-    for (let mesAno in vendasPorMes) {
-        const mesDiv = document.createElement('div');
-        mesDiv.classList.add('mb-4');
-        mesDiv.innerHTML = `<strong>${mesAno}:</strong>`;
-        historicoDiv.appendChild(mesDiv);
-
-        vendasPorMes[mesAno].forEach(venda => {
-            const vendaDiv = document.createElement('div');
-            vendaDiv.classList.add('mb-2');
-            vendaDiv.innerHTML = `
-                <p><strong>Veículo:</strong> ${venda.marca} ${venda.modelo} - ${venda.tipo}</p>
-                <p><strong>Quantidade Vendida:</strong> ${venda.quantidadeVendida}</p>
-                <p><strong>Preço de Venda:</strong> ${venda.precoVenda}</p>
-                <p><strong>Lucro:</strong> ${venda.lucro}</p>
-                <p><strong>Data da Venda:</strong> ${venda.dataVenda}</p>
-                <hr>
-            `;
-            mesDiv.appendChild(vendaDiv);
-        });
-    }
-}
-
-// Função para exibir a tabela do estoque e atualizar os valores totais
+// Função para exibir o estoque na tabela
 function atualizarTabela(veiculos = estoque) {
     const tabela = document.getElementById('estoque-tabela').getElementsByTagName('tbody')[0];
     tabela.innerHTML = '';
@@ -158,37 +114,3 @@ function filtrarPorTipo() {
     const veiculosFiltrados = filtro ? estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro) : estoque;
     atualizarTabela(veiculosFiltrados);
 }
-
-// Função para registrar as vendas no histórico
-function registrarVendaNoHistorico(lucro) {
-    const dataAtual = new Date();
-    const mesAno = `${dataAtual.getMonth() + 1}-${dataAtual.getFullYear()}`;
-
-    let registroMes = historicoVendas.find(venda => venda.mesAno === mesAno);
-
-    if (!registroMes) {
-        registroMes = { mesAno, lucro: 0 };
-        historicoVendas.push(registroMes);
-    }
-
-    registroMes.lucro += lucro;
-    localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas));
-
-    exibirHistoricoVendas();
-}
-
-// Função para exibir o histórico de vendas mensal
-function exibirHistoricoVendas() {
-    const historicoDiv = document.getElementById('historico-vendas');
-    historicoDiv.innerHTML = '';
-
-    historicoVendas.forEach(venda => {
-        const div = document.createElement('div');
-        div.classList.add('mb-2');
-        div.innerHTML = `<strong>${venda.mesAno}:</strong> ${formatarMoeda(venda.lucro)}`;
-        historicoDiv.appendChild(div);
-    });
-}
-
-// Exibir o histórico de vendas ao carregar a página
-exibirHistoricoVendas();
