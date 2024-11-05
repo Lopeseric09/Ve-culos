@@ -1,6 +1,6 @@
-// Array para armazenar os veículos no estoque
 let estoque = JSON.parse(localStorage.getItem('estoque')) || [];
-let lucroTotal = 0; // Variável para armazenar o lucro total do mês
+let historicoVendas = JSON.parse(localStorage.getItem('historicoVendas')) || [];
+let lucroTotal = 0; // Variável para o lucro do mês
 
 // Função para adicionar um veículo ao estoque
 document.getElementById('form-veiculo').addEventListener('submit', function(event) {
@@ -46,11 +46,10 @@ document.getElementById('form-veiculo').addEventListener('submit', function(even
 // Função para exibir o estoque na tabela
 function atualizarTabela(veiculos = estoque) {
     const tabela = document.getElementById('estoque-tabela').getElementsByTagName('tbody')[0];
-    tabela.innerHTML = ''; // Limpar a tabela
+    tabela.innerHTML = '';
 
     veiculos.forEach(veiculo => {
         const row = tabela.insertRow();
-
         row.innerHTML = `
             <td>${veiculo.tipo}</td>
             <td>${veiculo.marca}</td>
@@ -59,78 +58,83 @@ function atualizarTabela(veiculos = estoque) {
             <td>${veiculo.quantidade}</td>
             <td>R$ ${veiculo.preco.toFixed(2)}</td>
             <td>R$ ${(veiculo.quantidade * veiculo.preco).toFixed(2)}</td>
-            <td>
-                <input type="number" class="form-control" value="${veiculo.vendidos}" min="0" max="${veiculo.quantidade}" 
-                onchange="registrarVenda(${estoque.indexOf(veiculo)}, this.value)">
-            </td>
-            <td>
-                <input type="number" class="form-control" value="${veiculo.precoVenda}" min="0" 
-                onchange="registrarPrecoVenda(${estoque.indexOf(veiculo)}, this.value)">
-            </td>
+            <td><input type="number" value="${veiculo.vendidos}" onchange="atualizarVendidos(${estoque.indexOf(veiculo)}, this.value)" /></td>
+            <td><input type="number" value="${veiculo.precoVenda}" onchange="atualizarPrecoVenda(${estoque.indexOf(veiculo)}, this.value)" /></td>
             <td>R$ ${(veiculo.vendidos * (veiculo.precoVenda - veiculo.preco)).toFixed(2)}</td>
         `;
     });
 }
 
-// Função para registrar a quantidade de veículos vendidos
-function registrarVenda(index, vendidos) {
+// Atualizar o número de vendidos
+function atualizarVendidos(index, vendidos) {
     const veiculo = estoque[index];
     veiculo.vendidos = parseInt(vendidos);
-
-    // Atualiza o lucro com a venda
     atualizarLucro();
     localStorage.setItem('estoque', JSON.stringify(estoque));
 }
 
-// Função para registrar o preço de venda
-function registrarPrecoVenda(index, precoVenda) {
+// Atualizar o preço de venda
+function atualizarPrecoVenda(index, precoVenda) {
     const veiculo = estoque[index];
     veiculo.precoVenda = parseFloat(precoVenda);
-
-    // Atualiza o lucro com a nova venda
     atualizarLucro();
     localStorage.setItem('estoque', JSON.stringify(estoque));
 }
 
-// Função para calcular o lucro do mês
+// Atualizar o lucro total
 function atualizarLucro() {
     lucroTotal = 0;
     estoque.forEach(veiculo => {
         lucroTotal += veiculo.vendidos * (veiculo.precoVenda - veiculo.preco);
     });
+
+    // Atualiza o lucro do mês
     document.getElementById('lucro-total').textContent = lucroTotal.toFixed(2);
 }
 
-// Função para calcular o valor total do estoque
+// Função para calcular o total do estoque
 function atualizarTotalEstoque() {
     const total = estoque.reduce((acc, veiculo) => acc + (veiculo.quantidade * veiculo.preco), 0);
     document.getElementById('total-valor').textContent = total.toFixed(2);
 }
 
-// Função para filtrar os veículos por tipo
+// Função para filtrar o estoque por tipo
 function filtrarPorTipo() {
     const filtro = document.getElementById('filtro-tipo').value.trim().toLowerCase();
-    
-    // Se não for selecionado nenhum tipo, mostrar todos os veículos
-    if (!filtro) {
-        atualizarTabela(estoque);
-        atualizarTotalEstoque();
-        atualizarLucro();
-        return;
+    const veiculosFiltrados = filtro ? estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro) : estoque;
+    atualizarTabela(veiculosFiltrados);
+}
+
+// Função para registrar as vendas no histórico
+function registrarVendaNoHistorico(lucro) {
+    const dataAtual = new Date();
+    const mesAno = `${dataAtual.getMonth() + 1}-${dataAtual.getFullYear()}`;
+
+    let registroMes = historicoVendas.find(venda => venda.mesAno === mesAno);
+
+    if (!registroMes) {
+        registroMes = { mesAno, lucro: 0 };
+        historicoVendas.push(registroMes);
     }
 
-    const veiculosFiltrados = estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro);
-    atualizarTabela(veiculosFiltrados);
-    calcularTotalFiltrado(veiculosFiltrados);
+    registroMes.lucro += lucro;
+    localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas));
+
+    exibirHistoricoVendas();
 }
 
-// Função para calcular o valor total dos veículos filtrados
-function calcularTotalFiltrado(veiculos) {
-    const totalFiltrado = veiculos.reduce((acc, veiculo) => acc + (veiculo.quantidade * veiculo.preco), 0);
-    console.log(`Valor total dos veículos filtrados: R$ ${totalFiltrado.toFixed(2)}`);
+// Função para exibir o histórico de vendas mensal
+function exibirHistoricoVendas() {
+    const historicoDiv = document.getElementById('historico-vendas');
+    historicoDiv.innerHTML = '';
+
+    historicoVendas.forEach(venda => {
+        const div = document.createElement('div');
+        div.classList.add('mb-2');
+        div.innerHTML = `<strong>${venda.mesAno}:</strong> R$ ${venda.lucro.toFixed(2)}`;
+        historicoDiv.appendChild(div);
+    });
 }
 
-// Inicializar a tabela com os dados do localStorage
-atualizarTabela();
-atualizarTotalEstoque();
-atualizarLucro();
+// Exibir o histórico de vendas ao carregar a página
+exibirHistoricoVendas();
