@@ -1,0 +1,97 @@
+class EstoqueVeiculos:
+    def __init__(self):
+        """Inicializa o estoque com uma lista vazia de veículos."""
+        self.estoque = []
+
+    def adicionar_veiculo(self, tipo, modelo, ano, quantidade, preco):
+        """
+        Adiciona um veículo ao estoque com tipo, modelo, ano, quantidade e preço.
+
+        :param tipo: Tipo do veículo (carro, moto, caminhão, etc.)
+        :param modelo: Modelo do veículo
+        :param ano: Ano de fabricação do veículo
+        :param quantidade: Quantidade disponível do veículo no estoque
+        :param preco: Preço unitário do veículo
+        """
+        veiculo = {
+            'tipo': tipo,
+            'modelo': modelo,
+            'ano': ano,
+            'quantidade': quantidade,
+            'preco': preco
+        }
+        self.estoque.append(veiculo)
+
+    def remover_veiculo(self, modelo):
+        """
+        Remove um veículo do estoque pelo modelo.
+
+        :param modelo: Modelo do veículo a ser removido
+        """
+        self.estoque = [veiculo for veiculo in self.estoque if veiculo['modelo'] != modelo]
+
+    def filtrar_por_tipo(self, tipo):
+        """
+        Filtra os veículos no estoque pelo tipo.
+
+        :param tipo: Tipo de veículo para filtrar (carro, moto, caminhão, etc.)
+        :return: Lista de veículos filtrados pelo tipo
+        """
+        return [veiculo for veiculo in self.estoque if veiculo['tipo'].lower() == tipo.lower()]
+
+    def calcular_total_estoque(self):
+        """
+        Calcula o valor total do estoque com base nas quantidades e preços dos veículos.
+
+        :return: Valor total do estoque
+        """
+        total = sum(veiculo['quantidade'] * veiculo['preco'] for veiculo in self.estoque)
+        return total
+
+    def exibir_estoque(self):
+        """
+        Exibe todos os veículos no estoque com detalhes de tipo, modelo, ano, quantidade e preço.
+        """
+        if not self.estoque:
+            print("Estoque vazio.")
+        else:
+            print("\nEstoque de Veículos:")
+            for veiculo in self.estoque:
+                print(f"Tipo: {veiculo['tipo']}, Modelo: {veiculo['modelo']}, "
+                      f"Ano: {veiculo['ano']}, Quantidade: {veiculo['quantidade']}, Preço Unitário: R${veiculo['preco']:.2f}")
+        print("\n")
+
+# Função principal para testar o código
+def main():
+    estoque = EstoqueVeiculos()
+
+    # Adicionando alguns veículos ao estoque
+    estoque.adicionar_veiculo('carro', 'Fusca', 1972, 5, 25000.00)
+    estoque.adicionar_veiculo('moto', 'CB 500', 2020, 3, 18000.00)
+    estoque.adicionar_veiculo('carro', 'Civic', 2022, 2, 120000.00)
+    estoque.adicionar_veiculo('caminhão', 'Scania R440', 2018, 1, 300000.00)
+    
+    # Exibindo o estoque completo
+    estoque.exibir_estoque()
+
+    # Calculando o valor total do estoque
+    total_estoque = estoque.calcular_total_estoque()
+    print(f"Valor total do estoque: R${total_estoque:.2f}")
+
+    # Filtrando por tipo de veículo
+    tipo_filtro = input("\nDigite o tipo de veículo para filtrar (carro, moto, caminhão): ").strip().lower()
+    veiculos_filtrados = estoque.filtrar_por_tipo(tipo_filtro)
+
+    if veiculos_filtrados:
+        print(f"\nVeículos do tipo '{tipo_filtro}':")
+        for veiculo in veiculos_filtrados:
+            print(f"Modelo: {veiculo['modelo']}, Ano: {veiculo['ano']}, Quantidade: {veiculo['quantidade']}, Preço Unitário: R${veiculo['preco']:.2f}")
+    else:
+        print(f"\nNão há veículos do tipo '{tipo_filtro}' no estoque.")
+
+    # Recalculando o valor total após o filtro
+    total_filtrado = sum(veiculo['quantidade'] * veiculo['preco'] for veiculo in veiculos_filtrados)
+    print(f"\nValor total dos veículos filtrados: R${total_filtrado:.2f}")
+
+if __name__ == '__main__':
+    main()
