@@ -98,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Atualizar estoque e histórico
         veiculo.quantidade -= quantidadeVendida;
         veiculo.vendidos += quantidadeVendida;
 
@@ -110,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
             data: new Date().toLocaleDateString()
         });
 
-        // Salvar dados no localStorage
         localStorage.setItem('estoque', JSON.stringify(estoque));
         localStorage.setItem('historicoVendas', JSON.stringify(historicoVendas));
 
@@ -119,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarLucro();
     }
 
-    // Função para atualizar a quantidade de vendidos
+    // Função para atualizar o número de vendidos
     function atualizarVendidos(index, vendidos) {
         estoque[index].vendidos = parseInt(vendidos);
         localStorage.setItem('estoque', JSON.stringify(estoque));
@@ -147,7 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('total-valor').textContent = formatarMoeda(total);
     }
 
-    // Função para exibir o histórico de vendas
+    // Função para filtrar por tipo
+    function filtrarPorTipo() {
+        const filtro = document.getElementById('filtro-tipo').value.trim().toLowerCase();
+        const veiculosFiltrados = filtro ? estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro) : estoque;
+        atualizarTabela(veiculosFiltrados);
+    }
+
+    // Exibir histórico de vendas
     function exibirHistoricoVendas() {
         const historicoDiv = document.getElementById('historico-vendas');
         historicoDiv.innerHTML = '';
@@ -165,8 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
     atualizarTotalEstoque();
     atualizarLucro();
     exibirHistoricoVendas();
-});
-
 });
 
 
