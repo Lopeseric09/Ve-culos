@@ -160,3 +160,4 @@ function exibirHistoricoVendas() {
 
 // Exibir o histórico de vendas ao carregar a página
 exibirHistoricoVendas();
+
