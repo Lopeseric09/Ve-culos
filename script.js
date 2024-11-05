@@ -83,10 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function removerVeiculo(index) {
         // Remove o veículo do estoque
         estoque.splice(index, 1);
-        localStorage.setItem('estoque', JSON.stringify(estoque)); // Atualiza o localStorage
-        atualizarTabela(); // Atualiza a tabela após a remoção
-        atualizarTotalEstoque(); // Atualiza o total do estoque
-        atualizarLucro(); // Atualiza o lucro
+        localStorage.setItem('estoque', JSON.stringify(estoque));  // Atualiza o localStorage
+        atualizarTabela();  // Atualiza a tabela após a remoção
+        atualizarTotalEstoque();  // Atualiza o total do estoque
+        atualizarLucro();  // Atualiza o lucro
     }
 
     // Função para registrar venda
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function filtrarPorTipo() {
         const filtro = document.getElementById('filtro-tipo').value.trim().toLowerCase();
         const veiculosFiltrados = filtro ? estoque.filter(veiculo => veiculo.tipo.toLowerCase() === filtro) : estoque;
-        atualizarTabela(veiculosFiltrados);
+        atualizarTabela();
     }
 
     // Função para exibir o histórico de vendas
@@ -188,10 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Exibe o histórico de vendas ao carregar a página
     exibirHistoricoVendas();
 
-    // Atualiza a tabela, total e lucro no início
+    // Exibe o estoque inicial
     atualizarTabela();
-    atualizarTotalEstoque();
-    atualizarLucro();
 });
+
 
 
