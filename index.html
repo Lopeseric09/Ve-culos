@@ -17,26 +17,49 @@
             <div class="col-md-6">
                 <h3>Adicionar Veículo</h3>
                 <form id="form-veiculo" class="mb-4">
+                    <!-- Tipo (como select) -->
                     <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo</label>
-                        <input type="text" class="form-control" id="tipo" required>
+                        <select class="form-select" id="tipo" required>
+                            <option value="">Escolha o tipo</option>
+                            <option value="Carro">Carro</option>
+                            <option value="Caminhonete">Caminhonete</option>
+                            <option value="Moto">Moto</option>
+                            <option value="Caminhão">Caminhão</option>
+                        </select>
                     </div>
+
+                    <!-- Marca -->
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca" required>
+                    </div>
+
+                    <!-- Modelo -->
                     <div class="mb-3">
                         <label for="modelo" class="form-label">Modelo</label>
                         <input type="text" class="form-control" id="modelo" required>
                     </div>
+
+                    <!-- Ano -->
                     <div class="mb-3">
                         <label for="ano" class="form-label">Ano</label>
                         <input type="number" class="form-control" id="ano" min="1900" max="2100" required>
                     </div>
+
+                    <!-- Quantidade -->
                     <div class="mb-3">
                         <label for="quantidade" class="form-label">Quantidade</label>
                         <input type="number" class="form-control" id="quantidade" min="1" required>
                     </div>
+
+                    <!-- Preço Unitário -->
                     <div class="mb-3">
                         <label for="preco" class="form-label">Preço Unitário (R$)</label>
                         <input type="number" class="form-control" id="preco" min="0.01" step="0.01" required>
                     </div>
+
+                    <!-- Botão de adicionar -->
                     <button type="submit" class="btn btn-primary">Adicionar Veículo</button>
                 </form>
             </div>
@@ -59,6 +82,7 @@
             <thead>
                 <tr>
                     <th>Tipo</th>
+                    <th>Marca</th>
                     <th>Modelo</th>
                     <th>Ano</th>
                     <th>Quantidade</th>
