@@ -1,16 +1,29 @@
 body {
-    background-color: #f4f4f4;
     font-family: Arial, sans-serif;
 }
 
-.container {
-    margin-top: 50px;
+h1 {
+    font-size: 2.5rem;
+    color: #333;
 }
 
-table th, table td {
+h3 {
+    margin-bottom: 15px;
+}
+
+#valor-total, #lucro-mes {
+    font-size: 1.5rem;
+}
+
+table {
+    margin-top: 20px;
+}
+
+th, td {
     text-align: center;
 }
 
-h1, h3 {
-    color: #333;
+button {
+    margin-top: 10px;
 }
+
