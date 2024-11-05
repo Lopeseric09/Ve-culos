@@ -1,28 +1,37 @@
 // Array para armazenar os veículos no estoque
-let estoque = [];
+let estoque = JSON.parse(localStorage.getItem('estoque')) || [];
 
 // Função para adicionar um veículo ao estoque
 document.getElementById('form-veiculo').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const tipo = document.getElementById('tipo').value;
-    const modelo = document.getElementById('modelo').value;
-    const ano = document.getElementById('ano').value;
-    const quantidade = document.getElementById('quantidade').value;
+    const tipo = document.getElementById('tipo').value.trim();
+    const modelo = document.getElementById('modelo').value.trim();
+    const ano = parseInt(document.getElementById('ano').value);
+    const quantidade = parseInt(document.getElementById('quantidade').value);
     const preco = parseFloat(document.getElementById('preco').value);
+
+    // Validações
+    if (tipo === '' || modelo === '' || ano < 1900 || ano > new Date().getFullYear() || quantidade <= 0 || preco <= 0) {
+        alert("Por favor, preencha todos os campos corretamente.");
+        return;
+    }
 
     // Criar um novo veículo e adicionar ao estoque
     const veiculo = {
         tipo,
         modelo,
         ano,
-        quantidade: parseInt(quantidade),
+        quantidade,
         preco
     };
 
     estoque.push(veiculo);
     atualizarTabela();
     atualizarTotalEstoque();
+
+    // Salvar no localStorage
+    localStorage.setItem('estoque', JSON.stringify(estoque));
 
     // Limpar o formulário
     document.getElementById('form-veiculo').reset();
@@ -55,7 +64,7 @@ function atualizarTotalEstoque() {
 
 // Função para filtrar os veículos por tipo
 function filtrarPorTipo() {
-    const filtro = document.getElementById('filtro-tipo').value.toLowerCase();
+    const filtro = document.getElementById('filtro-tipo').value.trim().toLowerCase();
     const veiculosFiltrados = estoque.filter(veiculo => veiculo.tipo.toLowerCase().includes(filtro));
     atualizarTabela(veiculosFiltrados);
     calcularTotalFiltrado(veiculosFiltrados);
@@ -66,3 +75,7 @@ function calcularTotalFiltrado(veiculos) {
     const totalFiltrado = veiculos.reduce((acc, veiculo) => acc + (veiculo.quantidade * veiculo.preco), 0);
     console.log(`Valor total dos veículos filtrados: R$ ${totalFiltrado.toFixed(2)}`);
 }
+
+// Inicializar a tabela com os dados do localStorage
+atualizarTabela();
+atualizarTotalEstoque();
