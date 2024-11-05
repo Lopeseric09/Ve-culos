@@ -14,6 +14,7 @@ function formatarMoeda(valor) {
 document.getElementById('form-veiculo').addEventListener('submit', function(event) {
     event.preventDefault();
 
+    // Captura os dados do formulário
     const tipo = document.getElementById('tipo').value.trim();
     const marca = document.getElementById('marca').value.trim();
     const modelo = document.getElementById('modelo').value.trim();
@@ -21,13 +22,13 @@ document.getElementById('form-veiculo').addEventListener('submit', function(even
     const quantidade = parseInt(document.getElementById('quantidade').value);
     const preco = parseFloat(document.getElementById('preco').value);
 
-    // Validações
+    // Validação
     if (tipo === '' || marca === '' || modelo === '' || ano < 1900 || ano > new Date().getFullYear() || quantidade <= 0 || preco <= 0) {
         alert("Por favor, preencha todos os campos corretamente.");
         return;
     }
 
-    // Criar um novo veículo e adicionar ao estoque
+    // Criação do novo veículo
     const veiculo = {
         tipo,
         marca,
@@ -39,22 +40,23 @@ document.getElementById('form-veiculo').addEventListener('submit', function(even
         precoVenda: 0
     };
 
+    // Adiciona o veículo ao estoque
     estoque.push(veiculo);
+    localStorage.setItem('estoque', JSON.stringify(estoque)); // Salva no localStorage
+
+    // Limpa o formulário
+    document.getElementById('form-veiculo').reset();
+
+    // Atualiza a tabela e o total do estoque
     atualizarTabela();
     atualizarTotalEstoque();
     atualizarLucro();
-
-    // Salvar no localStorage
-    localStorage.setItem('estoque', JSON.stringify(estoque));
-
-    // Limpar o formulário
-    document.getElementById('form-veiculo').reset();
 });
 
 // Função para exibir o estoque na tabela
 function atualizarTabela(veiculos = estoque) {
     const tabela = document.getElementById('estoque-tabela').getElementsByTagName('tbody')[0];
-    tabela.innerHTML = '';
+    tabela.innerHTML = '';  // Limpa a tabela antes de atualizar
 
     veiculos.forEach((veiculo, index) => {
         const row = tabela.insertRow();
@@ -97,8 +99,6 @@ function atualizarLucro() {
     estoque.forEach(veiculo => {
         lucroTotal += veiculo.vendidos * (veiculo.precoVenda - veiculo.preco);
     });
-
-    // Atualiza o lucro do mês
     document.getElementById('lucro-total').textContent = formatarMoeda(lucroTotal);
 }
 
